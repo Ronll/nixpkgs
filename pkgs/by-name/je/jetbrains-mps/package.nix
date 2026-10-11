@@ -9,36 +9,25 @@
   # keep-sorted end
 }:
 let
-  system = stdenv.hostPlatform.system;
-  # update-script-start: urls
-  urls = {
-    x86_64-linux = {
-      url = "https://download.jetbrains.com/mps/2026.1/MPS-2026.1.tar.gz";
-      hash = "sha256-NbURKu1jTPoJQvV8FpMacBa+FehF7XfF6xZmIhFlb2A=";
-    };
-    aarch64-linux = {
-      url = "https://download.jetbrains.com/mps/2026.1/MPS-2026.1.tar.gz";
-      hash = "sha256-NbURKu1jTPoJQvV8FpMacBa+FehF7XfF6xZmIhFlb2A=";
-    };
-    aarch64-darwin = {
-      url = "https://download.jetbrains.com/mps/2026.1/MPS-2026.1-macos-aarch64.dmg";
-      hash = "sha256-5VtPS26/vCKa+mfDAQKgd9x5A+Cqv39Kz+2EKkgul+I=";
-    };
-  };
-  # update-script-end: urls
+  inherit (stdenv.hostPlatform) system;
+  inherit (lib.importJSON ./version.json)
+    version
+    buildNumber
+    urls
+    ;
 in
 jetbrains.mkJetBrainsProduct {
-  inherit jetbrains-libdbm fsnotifier;
+  inherit
+    jetbrains-libdbm
+    fsnotifier
+    version
+    buildNumber
+    ;
 
   pname = "mps";
 
   wmClass = "jetbrains-MPS";
   product = "MPS";
-
-  # update-script-start: version
-  version = "2026.1";
-  buildNumber = "261.25134.779";
-  # update-script-end: version
 
   src = fetchurl (urls.${system} or (throw "Unsupported system: ${system}"));
 

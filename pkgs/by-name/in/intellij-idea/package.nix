@@ -13,37 +13,26 @@
   # keep-sorted end
 }:
 let
-  system = stdenv.hostPlatform.system;
-  # update-script-start: urls
-  urls = {
-    x86_64-linux = {
-      url = "https://download.jetbrains.com/idea/ideaIU-2026.2.3.tar.gz";
-      hash = "sha256-aHUciuTUlAclHNGX33lfvtkbb9yF0QxzxGSameSWqzc=";
-    };
-    aarch64-linux = {
-      url = "https://download.jetbrains.com/idea/ideaIU-2026.2.3-aarch64.tar.gz";
-      hash = "sha256-hzKG3WQGlxojEYJ+3WbFYGDDRVgqSmsXdOOSUYOwLsU=";
-    };
-    aarch64-darwin = {
-      url = "https://download.jetbrains.com/idea/ideaIU-2026.2.3-aarch64.dmg";
-      hash = "sha256-qsPNxthEG5QFJHP+43qWeSQqNvSfYP3ObM6qPnrUbjM=";
-    };
-  };
-  # update-script-end: urls
+  inherit (stdenv.hostPlatform) system;
+  inherit (lib.importJSON ./version.json)
+    version
+    buildNumber
+    urls
+    ;
 in
 jetbrains.mkJetBrainsProduct {
-  inherit jetbrains-libdbm fsnotifier;
+  inherit
+    jetbrains-libdbm
+    fsnotifier
+    version
+    buildNumber
+    ;
 
   pname = "intellij-idea";
 
   wmClass = "jetbrains-idea";
   product = "IntelliJ IDEA";
   productShort = "IDEA";
-
-  # update-script-start: version
-  version = "2026.2.3";
-  buildNumber = "262.10968.63";
-  # update-script-end: version
 
   src = fetchurl (urls.${system} or (throw "Unsupported system: ${system}"));
 

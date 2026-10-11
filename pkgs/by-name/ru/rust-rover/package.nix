@@ -15,36 +15,25 @@
   # keep-sorted end
 }:
 let
-  system = stdenv.hostPlatform.system;
-  # update-script-start: urls
-  urls = {
-    x86_64-linux = {
-      url = "https://download.jetbrains.com/rustrover/RustRover-2026.2.3.tar.gz";
-      hash = "sha256-+sDVAwcwHs22mZj+6zOPEoepbpwC0gUWXsTh2MDtQKY=";
-    };
-    aarch64-linux = {
-      url = "https://download.jetbrains.com/rustrover/RustRover-2026.2.3-aarch64.tar.gz";
-      hash = "sha256-ki+LKA8VBo6rvNcx5/IFmYDYJ1MPfvC0TvwKWRG/Yjg=";
-    };
-    aarch64-darwin = {
-      url = "https://download.jetbrains.com/rustrover/RustRover-2026.2.3-aarch64.dmg";
-      hash = "sha256-f1yhrXV4YGwYJnG5hxYO/YCITDvptV6f63axFQ2AKd0=";
-    };
-  };
-  # update-script-end: urls
+  inherit (stdenv.hostPlatform) system;
+  inherit (lib.importJSON ./version.json)
+    version
+    buildNumber
+    urls
+    ;
 in
 jetbrains.mkJetBrainsProduct {
-  inherit jetbrains-libdbm fsnotifier;
+  inherit
+    jetbrains-libdbm
+    fsnotifier
+    version
+    buildNumber
+    ;
 
   pname = "rust-rover";
 
   wmClass = "jetbrains-rustrover";
   product = "RustRover";
-
-  # update-script-start: version
-  version = "2026.2.3";
-  buildNumber = "262.10968.75";
-  # update-script-end: version
 
   src = fetchurl (urls.${system} or (throw "Unsupported system: ${system}"));
 
